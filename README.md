@@ -1,86 +1,60 @@
-# Local Neon stack
+# local-neon 🏄
 
-A tiny Docker Compose setup that mimics [Neon](https://neon.tech) serverless
-Postgres locally: a plain Postgres 17 server plus the
-[Neon serverless HTTP/WebSocket proxy](https://github.com/timowilhelm/local-neon-http-proxy)
-in front of it. Apps using the `@neondatabase/serverless` driver (or a
-framework helper like the Next.js `neon()` driver) connect to the proxy with no
-code changes, while pgAdmin gives you a GUI over the same database.
+**So Neon's price hikes caught you off guard, and now you can no longer afford to use Neon branches locally?**
 
-No cloud account, no Neon API keys, no secrets. Everything runs on localhost.
+Yeah. Same. 😤
 
-## What you get
+Here's the solution: a real Postgres 17 plus the Neon serverless HTTP/WebSocket proxy, wrapped in one Docker Compose file. Your `neon()` driver keeps working. Your branches keep working. Your wallet keeps working. ☕
 
-| Service | Port | Purpose |
-| --- | --- | --- |
-| `postgres` | `5432` | Real Postgres 17 (matches Neon's server version) |
-| `neon-proxy` | `4444` | Speaks Neon's serverless HTTP/WS protocol in front of Postgres |
-| `pgadmin` | `5050` | Web UI for poking at the database |
+No cloud account. No API keys. No compute bills that look like a phone number. Just `docker compose up` and you're back in business.
 
-## Quick start
+## The short version
 
 ```sh
+git clone https://github.com/thecaffeinatedengineer/local-neon
+cd local-neon
 cp .env.example .env
 docker compose up -d
 ```
 
-Then point your app at the proxy. For the Next.js Neon driver:
+Point your app at it:
 
-```
+```sh
+# plain Postgres — migrations, seeds, drizzle-kit, whatever
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/main
+
+# Neon serverless driver — talks to the proxy
 DATABASE_URL_WS=ws://localhost:4444
 ```
 
-The `DATABASE_URL_WS` style setup is what the
-[`neon()` serverless driver](https://neon.com/docs/local/local-neon-http-proxy)
-expects: the first URL is a plain Postgres connection used for config/queries,
-and the proxy handles the WebSocket-based serverless traffic.
+That's it. Your code doesn't change. Your `.env` barely changes. The cloud doesn't change... because there is no cloud. 🌤️
 
-## Migrations and seeding
+## What's inside
 
-Run your normal tooling against `postgres://postgres:postgres@localhost:5432/main`.
-For example, with Drizzle:
+| Service | Port | What it does |
+| --- | --- | --- |
+| `postgres` | `5432` | Real Postgres 17, same version Neon runs |
+| `neon-proxy` | `4444` | Speaks the Neon serverless HTTP/WS protocol |
+| `pgadmin` | `5050` | GUI for poking at your data |
 
-```sh
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/main pnpm drizzle-kit push
-```
+## Wait, what about branches?
 
-## pgAdmin
+Neon's killer feature is copy-on-write branches. Plain Postgres doesn't have them... but [CoW filesystems do](https://zfsproject.org/), and so does `pg_dump`. This stack keeps the driver story 100% Neon-compatible so your local dev matches production, and pairs it with whatever branching workflow you like.
 
-Open http://localhost:5050 and log in with the credentials from `.env`
-(`admin@local.dev` / `admin` by default). Register a server once:
+Want proper database branching? Snapshot with `pg_dump`, restore into a fresh database, point your proxy at it. Or run a second Postgres container and diff them. It's your machine, your rules, $0/month.
 
-- Host: `postgres`
-- Port: `5432`
-- Username / password: from `.env` (default `postgres` / `postgres`)
+## The bill
 
-pgAdmin shares the Compose network with Postgres, so `postgres` as the hostname
-works without publishing anything extra.
+A Neon Scale plan starts around $69/month. This stack runs on a laptop you already own.
 
-## Configuration
-
-All knobs live in `.env` (see `.env.example` for the full list). Everything has
-a safe local default, so the stack works with an empty `.env` too:
-
-- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT`
-- `PROXY_PORT`
-- `PGADMIN_DEFAULT_EMAIL`, `PGADMIN_DEFAULT_PASSWORD`, `PGADMIN_PORT`
-
-## Data lifecycle
-
-Named volumes `postgres_data` and `pgadmin_data` survive `docker compose down`.
-Wipe them with:
-
-```sh
-docker compose down -v
-```
+**Savings: $828/year.** Enough for a lot of coffee. ☕☕☕
 
 ## Requirements
 
-- Docker Engine 24+ or Docker Desktop (Compose v2 built in)
-- Roughly 300 MB of disk for the three images
+- Docker Engine 24+ / Docker Desktop
+- ~300 MB disk for images
+- The smug feeling of self-hosting
 
 ## Credits
 
-Built around [timowilhelm/local-neon-http-proxy](https://github.com/timowilhelm/local-neon-http-proxy)
-and upstream [neondatabase](https://github.com/neondatabase) images.
+Built on [timowilhelm/local-neon-http-proxy](https://github.com/timowilhelm/local-neon-http-proxy) and the upstream [Neon](https://github.com/neondatabase) images. MIT licensed.
