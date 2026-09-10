@@ -1,0 +1,9 @@
+# Local-only overrides; never commit your real .env
+.env
+
+# Postgres / pgAdmin state that must not leak
+*.dump
+*.sql.gz
+
+# OS noise
+.DS_Store
