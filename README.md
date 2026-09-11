@@ -4,7 +4,7 @@
 
 Yeah. Same. 😤
 
-Here's the solution: a real Postgres 17 plus the Neon serverless HTTP/WebSocket proxy, wrapped in one Docker Compose file. Your `neon()` driver keeps working. Your branches keep working. Your wallet keeps working. ☕
+Here's the solution: a real Postgres 18 plus the Neon serverless HTTP/WebSocket proxy, wrapped in one Docker Compose file. Your `neon()` driver keeps working. Your branches keep working. Your wallet keeps working. ☕
 
 No cloud account. No API keys. No compute bills that look like a phone number. Just `docker compose up` and you're back in business.
 
@@ -33,7 +33,7 @@ That's it. Your code doesn't change. Your `.env` barely changes. The cloud doesn
 
 | Service | Port | What it does |
 | --- | --- | --- |
-| `postgres` | `5432` | Real Postgres 17, same version Neon runs |
+| `postgres` | `5432` | Real Postgres 18, same version Neon runs |
 | `neon-proxy` | `4444` | Speaks the Neon serverless HTTP/WS protocol |
 | `pgadmin` | `5050` | GUI for poking at your data |
 
